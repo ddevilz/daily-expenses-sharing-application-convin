@@ -124,9 +124,10 @@ class LoginView(APIView):
         user = authenticate(username=username, password=password)
         if user:
             token, created = Token.objects.get_or_create(user=user)
-            return Response({
-                'token': token.key,
+            response = Response({
                 'user_id': user.customuser.id,
                 'email': user.email
             })
+            response.set_cookie('auth_token', token.key, httponly=True)
+            return response
         return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
